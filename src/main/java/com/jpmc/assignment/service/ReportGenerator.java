@@ -1,64 +1,60 @@
 package com.jpmc.assignment.service;
 
-import com.jpmc.assignment.dao.OrderCache;
-import com.jpmc.assignment.model.AdjustmentSaleMessage;
-import com.jpmc.assignment.model.Sale;
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.AdjustmentSaleMessage;
+import com.jpmc.assignment.entity.Sale;
 
-import org.apache.commons.collections4.MapUtils;
+import org.apache.log4j.Logger;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ReportGenerator {
-    private OrderCache orderCache;
+    private final SalesRepository salesRepository;
+    private final ReportWriter reportWriter;
 
-    private final static Logger logger = Logger.getLogger("ReportGenerator.class");
+    public ReportGenerator(SalesRepository salesRepository, ReportWriter reportWriter) {
+        this.salesRepository = salesRepository;
+        this.reportWriter = reportWriter;
+    }
+
+    private final static Logger logger = Logger.getLogger(ReportGenerator.class);
+
+
     /**
      * generates report with the details of processed products
      */
     public void generateProductDetailsReport() {
-        Map<String, List<Sale>> processedSaleMap = orderCache.getProductSaleMap();
-        Set<String> keySet = processedSaleMap.keySet();
-        for(String key : keySet) {
-            List<Sale> sales = processedSaleMap.get(key);
-            BigDecimal totalValue = BigDecimal.ZERO;
-            for(Sale sale : sales) {
-                totalValue = totalValue.add(sale.getPrice());
-            }
-            logger.info("For Product : "+key+", Total number of sales: "+sales.size()+" and total value: "+totalValue);
-        }
+        Map<String, ConcurrentLinkedQueue<Sale>> processedSaleMap = salesRepository.getAllSales();
+        reportWriter.write("Product,Total Sales,TotalSaleAmount");
+        processedSaleMap.entrySet().stream().forEach(entry -> {
+            reportWriter.write(entry.getKey()+ ","+
+                    entry.getValue().size()+ ","+
+                    entry.getValue().stream().filter(sale -> sale.getPrice() != null ).mapToDouble(sale -> sale.getPrice().doubleValue()).sum());
+        });
+
     }
 
     /**
      * generates report with the details for adjustmentsalemessages
      */
     public void generateAdjustmentReport() {
-        Map<String, List<AdjustmentSaleMessage>> saleAdjustmentMap= orderCache.getSaleAdjustmentsMap();
+        Map<String, ConcurrentLinkedQueue<AdjustmentSaleMessage>> saleAdjustmentMap= salesRepository.getAllProcessedAdjustmentSaleMessages();
 
-        if(MapUtils.isEmpty(saleAdjustmentMap)) {
-            System.out.println("No Adjustments made till now");
+        if(saleAdjustmentMap == null || saleAdjustmentMap.isEmpty()) {
+            logger.info("No Adjustments made till now");
             return;
         }
 
-        Set<String> keySet = saleAdjustmentMap.keySet();
+        reportWriter.write("Product,Adjustment,Price");
+        saleAdjustmentMap.entrySet().stream().forEach(entry -> {
+            entry.getValue().forEach(adjustmentSaleMessage -> {
+                reportWriter.write(entry.getKey()+","+ adjustmentSaleMessage.getAdjustment()+","+adjustmentSaleMessage.getSale().getPrice());
+            });
 
-        for(String product : keySet) {
-            List<AdjustmentSaleMessage> adjustmentSaleMessages = saleAdjustmentMap.get(product);
-            logger.info(adjustmentSaleMessages.toString());
-        }
+        });
 
-    }
 
-    public OrderCache getOrderCache() {
-        return orderCache;
-    }
-
-    public void setOrderCache(OrderCache orderCache) {
-        this.orderCache = orderCache;
     }
 }

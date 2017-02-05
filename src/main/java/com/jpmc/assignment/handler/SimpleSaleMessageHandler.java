@@ -1,50 +1,32 @@
 package com.jpmc.assignment.handler;
 
-import com.jpmc.assignment.dao.OrderCache;
-import com.jpmc.assignment.model.IncomingSaleMessage;
-import com.jpmc.assignment.model.Sale;
-import com.jpmc.assignment.model.SimpleSaleMessage;
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.IncomingSaleMessage;
+import com.jpmc.assignment.entity.Sale;
+import com.jpmc.assignment.entity.SimpleSaleMessage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.IntStream;
 
 
 public class SimpleSaleMessageHandler implements MessageHandler{
 
-    private OrderCache orderCache;
-    /**
-     *
-     * @param incomingSaleMessage  sale message to be processed
-     */
+    private final SalesRepository salesRepository;
+
+    public SimpleSaleMessageHandler(SalesRepository salesRepository) {
+        this.salesRepository = salesRepository;
+    }
+
+    @Override
     public void handle(IncomingSaleMessage incomingSaleMessage) {
 
-        if(incomingSaleMessage == null) {
-            throw new IllegalArgumentException("Invalid Recurrent Sales Message received");
+        if(incomingSaleMessage == null || !(incomingSaleMessage instanceof SimpleSaleMessage) || ((SimpleSaleMessage) incomingSaleMessage).getOccurrence() <= 0) {
+            throw new IllegalArgumentException("Invalid  Sales Message received "+ incomingSaleMessage);
         }
-        int count = 0;
 
         SimpleSaleMessage simpleSaleMessage = (SimpleSaleMessage) incomingSaleMessage;
         Sale sale = simpleSaleMessage.getSale();
-        orderCache.addSaleRecords(sale);
-        List<Sale> sales = orderCache.getSalesForGivenProduct(sale.getProduct());
-        if(sales == null) {
-            sales = new ArrayList<Sale>();
-        }
-
-        while (count < simpleSaleMessage.getNoOfOccurrence()) {
-            sales.add(sale);
-            count++;
-        }
-
-        orderCache.updateProductSaleMap(sale.getProduct(), sales);
+        IntStream.rangeClosed(1,simpleSaleMessage.getOccurrence()).parallel().forEach( i-> salesRepository.addSaleRecord(sale));
 
     }
 
-    public OrderCache getOrderCache() {
-        return orderCache;
-    }
-
-    public void setOrderCache(OrderCache orderCache) {
-        this.orderCache = orderCache;
-    }
 }

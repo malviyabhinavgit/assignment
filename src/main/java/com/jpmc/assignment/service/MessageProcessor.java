@@ -1,12 +1,9 @@
 package com.jpmc.assignment.service;
 
-import com.jpmc.assignment.model.IncomingSaleMessage;
+import com.jpmc.assignment.entity.IncomingSaleMessage;
+
 
 public interface MessageProcessor {
 
-    /**
-     *
-     * @param incomingSaleMessage  message sent by external system
-     */
-    public void process(IncomingSaleMessage incomingSaleMessage);
+     void process(IncomingSaleMessage incomingSaleMessage);
 }
