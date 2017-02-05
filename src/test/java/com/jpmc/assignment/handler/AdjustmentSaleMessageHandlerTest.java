@@ -18,7 +18,6 @@ import java.util.Collection;
 import static org.mockito.Mockito.*;
 
 
-
 public class AdjustmentSaleMessageHandlerTest {
 
 

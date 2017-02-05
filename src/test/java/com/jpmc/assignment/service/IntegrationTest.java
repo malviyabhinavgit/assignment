@@ -83,5 +83,8 @@ public class IntegrationTest {
         adjustmentSaleMessage = new AdjustmentSaleMessage(adjustmentSale, Adjustment.ADD);
         messageProcessorImpl.process(adjustmentSaleMessage);
 
+        Assert.assertEquals(100, salesRepository.getAllSales().get(adjustmentSaleMessage.getSale().getProduct()).size());
+        salesRepository.getAllSales().get(adjustmentSaleMessage.getSale().getProduct()).stream().forEach(sale -> Assert.assertEquals(new BigDecimal(60), sale.getPrice()));
+        Assert.assertEquals(adjustmentSaleMessage, salesRepository.getAllProcessedAdjustmentSaleMessages().get(adjustmentSaleMessage.getSale().getProduct()).peek());
     }
 }

@@ -25,7 +25,7 @@ public class SimpleSaleMessageHandler implements MessageHandler{
 
         SimpleSaleMessage simpleSaleMessage = (SimpleSaleMessage) incomingSaleMessage;
         Sale sale = simpleSaleMessage.getSale();
-        IntStream.rangeClosed(1,simpleSaleMessage.getOccurrence()).parallel().forEach( i-> salesRepository.addSaleRecord(sale));
+        IntStream.rangeClosed(1,simpleSaleMessage.getOccurrence()).parallel().forEach( i-> salesRepository.addSaleRecord(new Sale(sale.getProduct(), sale.getPrice())));
 
     }
 
