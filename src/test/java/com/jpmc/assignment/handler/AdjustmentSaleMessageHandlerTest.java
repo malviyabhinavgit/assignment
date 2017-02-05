@@ -1,6 +1,5 @@
 package com.jpmc.assignment.handler;
 
-import com.jpmc.assignment.dao.SalesCache;
 import com.jpmc.assignment.dao.SalesRepository;
 import com.jpmc.assignment.entity.Adjustment;
 import com.jpmc.assignment.entity.AdjustmentSaleMessage;
@@ -33,7 +32,7 @@ public class AdjustmentSaleMessageHandlerTest {
         verify(salesRepository, times(1)).storeAdjustmentMessage(eq(adjustmentSaleMessage));
         Collection<Sale> adjustedSales = salesRepository.getSalesForGivenProduct("Apple");
         Assert.assertEquals(10, adjustedSales.size());
-        adjustedSales.stream().forEach(adjustedSale -> Assert.assertEquals(new BigDecimal(110), adjustedSale.getPrice()));
+        adjustedSales.stream().forEach(adjustedSale -> Assert.assertTrue(new BigDecimal(110).doubleValue() == adjustedSale.getPrice().doubleValue()));
     }
 
     @Test
@@ -47,12 +46,12 @@ public class AdjustmentSaleMessageHandlerTest {
         Collection<Sale> mangoSales = salesRepository.getSalesForGivenProduct("Mango");
         Assert.assertEquals(10, mangoSales.size());
         //check if mango prices have been adjusted
-        mangoSales.stream().forEach(mangoSale -> Assert.assertEquals(new BigDecimal(30), mangoSale.getPrice()));
+        mangoSales.stream().forEach(mangoSale -> Assert.assertTrue(new BigDecimal(30).doubleValue() == mangoSale.getPrice().doubleValue()));
 
         Collection<Sale> appleSales = salesRepository.getSalesForGivenProduct("Apple");
         //check if apple sales are intact
         Assert.assertEquals(10, appleSales.size());
-        appleSales.stream().forEach(appleSale -> Assert.assertEquals(new BigDecimal(100), appleSale.getPrice()));
+        appleSales.stream().forEach(appleSale -> Assert.assertTrue(new BigDecimal(100).doubleValue() == appleSale.getPrice().doubleValue()));
 
     }
 
@@ -66,7 +65,7 @@ public class AdjustmentSaleMessageHandlerTest {
         verify(salesRepository, times(1)).storeAdjustmentMessage(eq(adjustmentSaleMessage));
         Collection<Sale> adjustedSales = salesRepository.getSalesForGivenProduct("Apple");
         Assert.assertEquals(10, adjustedSales.size());
-        adjustedSales.stream().forEach(adjustedSale -> Assert.assertEquals(new BigDecimal(110), adjustedSale.getPrice()));
+        adjustedSales.stream().forEach(adjustedSale -> Assert.assertTrue(new BigDecimal(110).doubleValue() == adjustedSale.getPrice().doubleValue()));
 
         adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.SUBTRACT);
         handler.handle(adjustmentSaleMessage);
@@ -74,7 +73,7 @@ public class AdjustmentSaleMessageHandlerTest {
         verify(salesRepository, times(1)).storeAdjustmentMessage(eq(adjustmentSaleMessage));
         adjustedSales = salesRepository.getSalesForGivenProduct("Apple");
         Assert.assertEquals(10, adjustedSales.size());
-        adjustedSales.stream().forEach(adjustedSale -> Assert.assertEquals(new BigDecimal(100), adjustedSale.getPrice()));
+        adjustedSales.stream().forEach(adjustedSale -> Assert.assertTrue(new BigDecimal(100).doubleValue() == adjustedSale.getPrice().doubleValue()));
 
 
         adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.MULTIPLY);
@@ -83,7 +82,7 @@ public class AdjustmentSaleMessageHandlerTest {
         verify(salesRepository, times(1)).storeAdjustmentMessage(eq(adjustmentSaleMessage));
         adjustedSales = salesRepository.getSalesForGivenProduct("Apple");
         Assert.assertEquals(10, adjustedSales.size());
-        adjustedSales.stream().forEach(adjustedSale -> Assert.assertEquals(new BigDecimal(1000), adjustedSale.getPrice()));
+        adjustedSales.stream().forEach(adjustedSale -> Assert.assertTrue(new BigDecimal(1000).doubleValue() == adjustedSale.getPrice().doubleValue()));
     }
 
     @Test
@@ -92,22 +91,22 @@ public class AdjustmentSaleMessageHandlerTest {
         Sale sale = new Sale("Cucumber", new BigDecimal(0));
         AdjustmentSaleMessage adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.ADD);
         handler.handle(adjustmentSaleMessage);
-        verify(salesRepository,times(0)).storeAdjustmentMessage(adjustmentSaleMessage);
+        verify(salesRepository, times(0)).storeAdjustmentMessage(adjustmentSaleMessage);
         Collection<Sale> sales = salesRepository.getSalesForGivenProduct("Cucumber");
         Collection<Sale> appleSales = salesRepository.getSalesForGivenProduct("Apple");
         //Apple sales are intact
-        appleSales.stream().forEach(appleSale -> Assert.assertEquals(new BigDecimal(100), appleSale.getPrice()));
+        appleSales.stream().forEach(appleSale -> Assert.assertTrue(new BigDecimal(100).doubleValue() == appleSale.getPrice().doubleValue()));
         Assert.assertEquals(0, sales.size());
     }
 
-    private void setup(){
+    private void setup() {
         Collection<Sale> sales = getSales("Apple", 100, 10);
         when(salesRepository.getSalesForGivenProduct("Apple")).thenReturn(sales);
         doNothing().when(salesRepository).storeAdjustmentMessage(Matchers.any(AdjustmentSaleMessage.class));
         handler = new AdjustmentSaleMessageHandler(salesRepository);
     }
 
-    private void setupMultipleProducts(){
+    private void setupMultipleProducts() {
         Collection<Sale> appleSales = getSales("Apple", 100, 10);
         when(salesRepository.getSalesForGivenProduct("Apple")).thenReturn(appleSales);
         Collection<Sale> mangoSales = getSales("Mango", 20, 10);
@@ -119,7 +118,7 @@ public class AdjustmentSaleMessageHandlerTest {
     private Collection<Sale> getSales(String product, int price, int count) {
         Collection<Sale> sales = new ArrayList<Sale>();
 
-        for(int i=0; i < count;i++) {
+        for (int i = 0; i < count; i++) {
             Sale sale = new Sale(product, new BigDecimal(price));
             sales.add(sale);
         }

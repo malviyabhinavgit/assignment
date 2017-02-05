@@ -1,12 +1,8 @@
 package com.jpmc.assignment.dao;
 
-import com.jpmc.assignment.dao.SalesCache;
-import com.jpmc.assignment.entity.AdjustmentSaleMessage;
-import com.jpmc.assignment.entity.Sale;
-
 import org.junit.Test;
 
-import java.util.ArrayList;
+import com.jpmc.assignment.dao.SalesCache;
 
 
 public class SalesCacheTest {
@@ -22,7 +18,7 @@ public class SalesCacheTest {
         salesCache.storeAdjustmentMessage(null);
     }
 
-   @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void addSaleRecordShouldThrowIllegalArgumentExceptionWhenSaleIsInvalid() {
         salesCache.addSaleRecord(null);
     }

@@ -8,7 +8,7 @@ import com.jpmc.assignment.entity.SimpleSaleMessage;
 import java.util.stream.IntStream;
 
 
-public class SimpleSaleMessageHandler implements MessageHandler{
+public class SimpleSaleMessageHandler implements MessageHandler {
 
     private final SalesRepository salesRepository;
 
@@ -19,13 +19,13 @@ public class SimpleSaleMessageHandler implements MessageHandler{
     @Override
     public void handle(IncomingSaleMessage incomingSaleMessage) {
 
-        if(incomingSaleMessage == null || !(incomingSaleMessage instanceof SimpleSaleMessage) || ((SimpleSaleMessage) incomingSaleMessage).getOccurrence() <= 0) {
-            throw new IllegalArgumentException("Invalid  Sales Message received "+ incomingSaleMessage);
+        if (incomingSaleMessage == null || !(incomingSaleMessage instanceof SimpleSaleMessage) || ((SimpleSaleMessage) incomingSaleMessage).getOccurrence() <= 0) {
+            throw new IllegalArgumentException("Invalid  Sales Message received " + incomingSaleMessage);
         }
 
         SimpleSaleMessage simpleSaleMessage = (SimpleSaleMessage) incomingSaleMessage;
         Sale sale = simpleSaleMessage.getSale();
-        IntStream.rangeClosed(1,simpleSaleMessage.getOccurrence()).parallel().forEach( i-> salesRepository.addSaleRecord(new Sale(sale.getProduct(), sale.getPrice())));
+        IntStream.rangeClosed(1, simpleSaleMessage.getOccurrence()).parallel().forEach(i -> salesRepository.addSaleRecord(new Sale(sale.getProduct(), sale.getPrice())));
 
     }
 

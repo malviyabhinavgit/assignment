@@ -16,19 +16,16 @@ public class SalesCache implements SalesRepository {
 
 
     /**
-     *
      * @param product product type
      * @return returns list of sale for given product type
      */
     @Override
     public Collection<Sale> getSalesForGivenProduct(String product) {
-        if(product == null) {
+        if (product == null) {
             throw new IllegalArgumentException("Invalid Product received");
         }
         return productSaleMap.get(product);
     }
-
-
 
 
     /*
@@ -38,26 +35,24 @@ public class SalesCache implements SalesRepository {
      */
     @Override
     public void storeAdjustmentMessage(AdjustmentSaleMessage adjustmentSaleMessage) {
-        if(adjustmentSaleMessage == null || adjustmentSaleMessage.getSale() == null || adjustmentSaleMessage.getSale().getProduct() == null) {
+        if (adjustmentSaleMessage == null || adjustmentSaleMessage.getSale() == null || adjustmentSaleMessage.getSale().getProduct() == null) {
             throw new IllegalArgumentException("Invalid product & adjustment sales combination received");
         }
 
         ConcurrentLinkedQueue<AdjustmentSaleMessage> exitingMessages = saleAdjustmentsMap.putIfAbsent(adjustmentSaleMessage.getSale().getProduct(), new ConcurrentLinkedQueue<>(Collections.singletonList(adjustmentSaleMessage)));
-        if(exitingMessages != null){
+        if (exitingMessages != null) {
             exitingMessages.add(adjustmentSaleMessage);
         }
     }
 
 
-
-
     @Override
     public void addSaleRecord(Sale sale) {
-        if(sale == null || sale.getProduct() == null) {
+        if (sale == null || sale.getProduct() == null) {
             throw new IllegalArgumentException("Invalid product & sale combination received");
         }
         ConcurrentLinkedQueue<Sale> existingSaleRecords = productSaleMap.putIfAbsent(sale.getProduct(), new ConcurrentLinkedQueue<>(Collections.singletonList(sale)));
-        if(existingSaleRecords != null){
+        if (existingSaleRecords != null) {
             existingSaleRecords.add(sale);
         }
     }
@@ -66,7 +61,6 @@ public class SalesCache implements SalesRepository {
     public Map<String, ConcurrentLinkedQueue<Sale>> getAllSales() {
         return this.productSaleMap;
     }
-
 
 
     @Override

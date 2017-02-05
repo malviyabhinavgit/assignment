@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 import static org.mockito.Mockito.*;
 
 
@@ -39,7 +38,7 @@ public class SimpleSaleMessageHandlerTest {
     }
 
 
-    private void setup(){
+    private void setup() {
         doNothing().when(salesRepository).addSaleRecord(Matchers.any(Sale.class));
         handler = new SimpleSaleMessageHandler(salesRepository);
     }
@@ -47,7 +46,7 @@ public class SimpleSaleMessageHandlerTest {
     private Collection<Sale> getSales(String product, int price, int count) {
         Collection<Sale> sales = new ArrayList<Sale>();
 
-        for(int i=0; i < count;i++) {
+        for (int i = 0; i < count; i++) {
             Sale sale = new Sale(product, new BigDecimal(price));
             sales.add(sale);
         }

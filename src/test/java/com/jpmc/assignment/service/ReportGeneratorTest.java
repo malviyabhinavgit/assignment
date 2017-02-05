@@ -8,12 +8,11 @@ import com.jpmc.assignment.entity.Sale;
 import com.jpmc.assignment.service.ReportGenerator;
 import com.jpmc.assignment.service.ReportWriter;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -27,14 +26,13 @@ public class ReportGeneratorTest {
     private ReportWriter reportWriter = mock(ReportWriter.class);
 
 
-
     @Test
     public void testGenerateProductDetailsReport() {
         setUpProcessedSales();
         reportGenerator.generateProductDetailsReport();
         verify(salesRepository, times(1)).getAllSales();
         verify(reportWriter, times(1)).write("Product,Total Sales,TotalSaleAmount");
-        verify(reportWriter,times(1)).write("Apple,1,100.0");
+        verify(reportWriter, times(1)).write("Apple,1,100.00");
     }
 
     @Test
@@ -43,7 +41,7 @@ public class ReportGeneratorTest {
         reportGenerator.generateAdjustmentReport();
         verify(salesRepository, times(1)).getAllProcessedAdjustmentSaleMessages();
         verify(reportWriter, times(1)).write("Product,Adjustment,Price");
-        verify(reportWriter,times(1)).write("Apple,ADD,10");
+        verify(reportWriter, times(1)).write("Apple,ADD,10.00");
     }
 
 

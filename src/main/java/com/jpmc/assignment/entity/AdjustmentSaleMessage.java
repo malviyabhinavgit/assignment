@@ -8,6 +8,7 @@ public class AdjustmentSaleMessage extends IncomingSaleMessage {
         super(sale);
         this.adjustment = adjustment;
     }
+
     public Adjustment getAdjustment() {
         return adjustment;
     }
@@ -15,7 +16,7 @@ public class AdjustmentSaleMessage extends IncomingSaleMessage {
     @Override
     public String toString() {
         return "AdjustmentSaleMessage{" +
-                "adjustment=" + adjustment + " product= "+getSale().getProduct()+" price= "+getSale().getPrice()+
+                "adjustment=" + adjustment + " product= " + getSale().getProduct() + " price= " + getSale().getPrice() +
                 '}';
     }
 

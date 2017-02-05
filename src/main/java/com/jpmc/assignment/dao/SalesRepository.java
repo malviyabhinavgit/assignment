@@ -16,9 +16,9 @@ public interface SalesRepository {
 
     void addSaleRecord(Sale sale);
 
-    Map<String,ConcurrentLinkedQueue<Sale>> getAllSales();
+    Map<String, ConcurrentLinkedQueue<Sale>> getAllSales();
 
-    Map<String,ConcurrentLinkedQueue<AdjustmentSaleMessage>> getAllProcessedAdjustmentSaleMessages();
+    Map<String, ConcurrentLinkedQueue<AdjustmentSaleMessage>> getAllProcessedAdjustmentSaleMessages();
 
 }
 

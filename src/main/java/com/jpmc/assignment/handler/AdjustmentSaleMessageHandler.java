@@ -26,18 +26,18 @@ public class AdjustmentSaleMessageHandler implements MessageHandler {
 
     @Override
     public void handle(IncomingSaleMessage incomingSaleMessage) {
-        if(incomingSaleMessage == null || !(incomingSaleMessage instanceof AdjustmentSaleMessage)) {
+        if (incomingSaleMessage == null || !(incomingSaleMessage instanceof AdjustmentSaleMessage)) {
             throw new IllegalArgumentException("Invalid Adjustment Sales Message received");
         }
 
         AdjustmentSaleMessage adjustmentSaleMessage = (AdjustmentSaleMessage) incomingSaleMessage;
         Collection<Sale> sales = salesRepository.getSalesForGivenProduct(incomingSaleMessage.getSale().getProduct());
-        if(sales == null || sales.isEmpty()) {
+        if (sales == null || sales.isEmpty()) {
             logger.info("No sale exists of given product to adjust as off now");
             return;
         }
 
-        adjustSales(adjustmentSaleMessage,sales);
+        adjustSales(adjustmentSaleMessage, sales);
         salesRepository.storeAdjustmentMessage(adjustmentSaleMessage);
     }
 
@@ -45,7 +45,6 @@ public class AdjustmentSaleMessageHandler implements MessageHandler {
         final Adjustment adjustment = message.getAdjustment();
         final BigDecimal adjustAmount = message.getSale().getPrice();
         sales.parallelStream().forEach(sale -> adjustPrice(adjustment, adjustAmount, sale));
-
 
 
     }
@@ -62,7 +61,8 @@ public class AdjustmentSaleMessageHandler implements MessageHandler {
             case MULTIPLY:
                 price = price.multiply(adjustAmount);
                 break;
-            default: logger.info("Invalid adjustment");
+            default:
+                logger.info("Invalid adjustment");
         }
 
         sale.setPrice(price);

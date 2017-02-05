@@ -3,6 +3,7 @@ package com.jpmc.assignment.service;
 
 import com.jpmc.assignment.entity.IncomingSaleMessage;
 import com.jpmc.assignment.entity.MessageType;
+import com.jpmc.assignment.exception.MessageProcessorException;
 import com.jpmc.assignment.handler.MessageHandler;
 
 import org.apache.log4j.Logger;
@@ -20,11 +21,10 @@ public class MessageProcessorImpl implements MessageProcessor {
     private final int pauseCutOffCount;
 
 
-
     public MessageProcessorImpl(Map<MessageType, MessageHandler> messageHandlers, ReportGenerator reportGenerator, int logCutOffCount, int pauseCutOffCount) {
-        if(messageHandlers == null || reportGenerator == null || logCutOffCount <=0 || pauseCutOffCount <= 0){
-            throw new IllegalArgumentException("Invalid arguments supplied messageHandlers="+messageHandlers+ " reportGenerator="+reportGenerator
-            +" logCutOffCount="+logCutOffCount +" pauseCutOffCount="+pauseCutOffCount);
+        if (messageHandlers == null || reportGenerator == null || logCutOffCount <= 0 || pauseCutOffCount <= 0) {
+            throw new IllegalArgumentException("Invalid arguments supplied messageHandlers=" + messageHandlers + " reportGenerator=" + reportGenerator
+                    + " logCutOffCount=" + logCutOffCount + " pauseCutOffCount=" + pauseCutOffCount);
         }
         this.messageHandlers = messageHandlers;
         this.reportGenerator = reportGenerator;
@@ -32,45 +32,44 @@ public class MessageProcessorImpl implements MessageProcessor {
         this.pauseCutOffCount = pauseCutOffCount;
     }
 
-    private AtomicInteger processedMessageCount= new AtomicInteger();
+    private AtomicInteger processedMessageCount = new AtomicInteger();
     private AtomicBoolean isPaused = new AtomicBoolean();
 
     private final static Logger logger = Logger.getLogger(MessageProcessorImpl.class);
 
 
-
     @Override
-    public void process(IncomingSaleMessage incomingSaleMessage) {
+    public void process(IncomingSaleMessage incomingSaleMessage) throws MessageProcessorException{
 
-        if(incomingSaleMessage == null) {
+        if (incomingSaleMessage == null) {
             throw new IllegalArgumentException("Invalid message received");
         }
 
         MessageHandler messageHandler = messageHandlers.get(incomingSaleMessage.getMessageType());
 
-        if(messageHandler == null) {
+        if (messageHandler == null) {
             RuntimeException exception = new RuntimeException("Unknown message type! Can't process this message " + incomingSaleMessage);
             logger.error(exception);
             throw exception;
         }
 
-        if(!isPaused.get()) {
-                messageHandler.handle(incomingSaleMessage);
-                processedMessageCount.incrementAndGet();
+        if (!isPaused.get()) {
+            messageHandler.handle(incomingSaleMessage);
+            processedMessageCount.incrementAndGet();
 
-                if(shouldLogProductDetails(processedMessageCount)) {
-                    logProductDetailsReport();
-                }
+            if (shouldLogProductDetails(processedMessageCount)) {
+                logProductDetailsReport();
+            }
 
-                if(shouldPauseApplication(processedMessageCount)) {
-                    pauseApplication();
-                    logAdjustmentReport();
-                    resumeApplication();
-                }
+            if (shouldPauseApplication(processedMessageCount)) {
+                pauseApplication();
+                logAdjustmentReport();
+                resumeApplication();
+            }
 
-        }else{
-            //TODO should a checked exception be thrown so that client can take corrective action? Like trying after sometime.
-            logger.info("Application is currently paused and can't process new message : "+ incomingSaleMessage );
+        } else {
+            logger.info("Application is currently paused and can't process new message : " + incomingSaleMessage);
+            throw new MessageProcessorException("Application is currently paused and can't process new message. Please try after sometime");
         }
 
     }
@@ -87,17 +86,11 @@ public class MessageProcessorImpl implements MessageProcessor {
 
 
     private boolean shouldPauseApplication(AtomicInteger processedMessageCount) {
-        if(processedMessageCount.intValue() % pauseCutOffCount == 0){
-            return true;
-        }
-        return false;
+        return processedMessageCount.intValue() % pauseCutOffCount == 0;
     }
 
     private boolean shouldLogProductDetails(AtomicInteger processedMessageCount) {
-        if(processedMessageCount.intValue() % logCutOffCount == 0) {
-            return true;
-        }
-        return false;
+        return processedMessageCount.intValue() % logCutOffCount == 0;
     }
 
     private void logAdjustmentReport() {
