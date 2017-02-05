@@ -1,20 +1,24 @@
 package com.jpmc.assignment.handler;
 
-import com.jpmc.assignment.dao.SalesRepository;
-import com.jpmc.assignment.entity.Adjustment;
-import com.jpmc.assignment.entity.AdjustmentSaleMessage;
-import com.jpmc.assignment.entity.Sale;
-import com.jpmc.assignment.handler.AdjustmentSaleMessageHandler;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static org.mockito.Mockito.*;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.Adjustment;
+import com.jpmc.assignment.entity.AdjustmentSaleMessage;
+import com.jpmc.assignment.entity.Sale;
 
 
 public class AdjustmentSaleMessageHandlerTest {
@@ -22,10 +26,10 @@ public class AdjustmentSaleMessageHandlerTest {
 
     private SalesRepository salesRepository = mock(SalesRepository.class);
     private AdjustmentSaleMessageHandler handler;
-
+ 
     @Test
-    public void handleTestWithSingleTypeOfProduct() {
-        setup();
+    public void shouldAdjustPriceInSingleProductAvailableScenario() {
+        createRepositoryExpectationsWithSingleProductType();
         Sale adjustmentSale = new Sale("Apple", new BigDecimal(10));
         AdjustmentSaleMessage adjustmentSaleMessage = new AdjustmentSaleMessage(adjustmentSale, Adjustment.ADD);
         handler.handle(adjustmentSaleMessage);
@@ -36,8 +40,8 @@ public class AdjustmentSaleMessageHandlerTest {
     }
 
     @Test
-    public void testHandleWithADDAdjustmentForMultipleProducts() {
-        setupMultipleProducts();
+    public void shouldAdjustPriceInMultipleProductAvailableScenario() {
+        createRepositoryExpectationsWithMultipleProductType();
         Sale sale = new Sale("Mango", new BigDecimal(10));
         AdjustmentSaleMessage adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.ADD);
         handler.handle(adjustmentSaleMessage);
@@ -56,8 +60,8 @@ public class AdjustmentSaleMessageHandlerTest {
     }
 
     @Test
-    public void testHandleWithALLAdjustmentForProduct() {
-        setup();
+    public void shouldApplyMultipleAdjustmentsInSingleProductScenario() {
+        createRepositoryExpectationsWithSingleProductType();
         Sale sale = new Sale("Apple", new BigDecimal(10));
         AdjustmentSaleMessage adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.ADD);
         handler.handle(adjustmentSaleMessage);
@@ -86,8 +90,8 @@ public class AdjustmentSaleMessageHandlerTest {
     }
 
     @Test
-    public void testHandleWithAddAdjustmentForNonExistingProduct() {
-        setup();
+    public void shouldNotApplyAdjustmentWhenProductIsNotAvailable() {
+        createRepositoryExpectationsWithSingleProductType();
         Sale sale = new Sale("Cucumber", new BigDecimal(0));
         AdjustmentSaleMessage adjustmentSaleMessage = new AdjustmentSaleMessage(sale, Adjustment.ADD);
         handler.handle(adjustmentSaleMessage);
@@ -99,14 +103,14 @@ public class AdjustmentSaleMessageHandlerTest {
         Assert.assertEquals(0, sales.size());
     }
 
-    private void setup() {
+    private void createRepositoryExpectationsWithSingleProductType() {
         Collection<Sale> sales = getSales("Apple", 100, 10);
         when(salesRepository.getSalesForGivenProduct("Apple")).thenReturn(sales);
         doNothing().when(salesRepository).storeAdjustmentMessage(Matchers.any(AdjustmentSaleMessage.class));
         handler = new AdjustmentSaleMessageHandler(salesRepository);
     }
 
-    private void setupMultipleProducts() {
+    private void createRepositoryExpectationsWithMultipleProductType() {
         Collection<Sale> appleSales = getSales("Apple", 100, 10);
         when(salesRepository.getSalesForGivenProduct("Apple")).thenReturn(appleSales);
         Collection<Sale> mangoSales = getSales("Mango", 20, 10);

@@ -1,15 +1,15 @@
 package com.jpmc.assignment.handler;
 
+import java.math.BigDecimal;
+import java.util.Collection;
+
+import org.apache.log4j.Logger;
+
 import com.jpmc.assignment.dao.SalesRepository;
 import com.jpmc.assignment.entity.Adjustment;
 import com.jpmc.assignment.entity.AdjustmentSaleMessage;
 import com.jpmc.assignment.entity.IncomingSaleMessage;
 import com.jpmc.assignment.entity.Sale;
-
-import org.apache.log4j.Logger;
-
-import java.math.BigDecimal;
-import java.util.Collection;
 
 
 public class AdjustmentSaleMessageHandler implements MessageHandler {

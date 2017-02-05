@@ -15,10 +15,6 @@ public class SalesCache implements SalesRepository {
     private final Map<String, ConcurrentLinkedQueue<Sale>> productSaleMap = new ConcurrentHashMap<>();
 
 
-    /**
-     * @param product product type
-     * @return returns list of sale for given product type
-     */
     @Override
     public Collection<Sale> getSalesForGivenProduct(String product) {
         if (product == null) {
@@ -28,11 +24,6 @@ public class SalesCache implements SalesRepository {
     }
 
 
-    /*
-     *
-     * @param product product type
-     * @param adjustmentSaleMessages list of adjustmentSaleMessgaes for given product type
-     */
     @Override
     public void storeAdjustmentMessage(AdjustmentSaleMessage adjustmentSaleMessage) {
         if (adjustmentSaleMessage == null || adjustmentSaleMessage.getSale() == null || adjustmentSaleMessage.getSale().getProduct() == null) {

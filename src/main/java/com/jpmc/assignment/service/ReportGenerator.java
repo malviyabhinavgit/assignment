@@ -1,15 +1,15 @@
 package com.jpmc.assignment.service;
 
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.apache.log4j.Logger;
+
 import com.jpmc.assignment.dao.SalesRepository;
 import com.jpmc.assignment.entity.AdjustmentSaleMessage;
 import com.jpmc.assignment.entity.Sale;
 import com.jpmc.assignment.util.Constants;
-
-import org.apache.log4j.Logger;
-
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class ReportGenerator {
@@ -24,9 +24,6 @@ public class ReportGenerator {
     private final static Logger logger = Logger.getLogger(ReportGenerator.class);
 
 
-    /**
-     * generates report with the details of processed products
-     */
     public void generateProductDetailsReport() {
         Map<String, ConcurrentLinkedQueue<Sale>> processedSaleMap = salesRepository.getAllSales();
         reportWriter.write("Product,Total Sales,TotalSaleAmount");
@@ -38,9 +35,7 @@ public class ReportGenerator {
 
     }
 
-    /**
-     * generates report with the details for adjustmentsalemessages
-     */
+  
     public void generateAdjustmentReport() {
         Map<String, ConcurrentLinkedQueue<AdjustmentSaleMessage>> saleAdjustmentMap = salesRepository.getAllProcessedAdjustmentSaleMessages();
 

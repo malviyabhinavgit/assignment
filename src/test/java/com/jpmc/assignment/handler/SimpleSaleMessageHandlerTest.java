@@ -1,18 +1,19 @@
 package com.jpmc.assignment.handler;
 
-import com.jpmc.assignment.dao.SalesRepository;
-import com.jpmc.assignment.entity.Sale;
-import com.jpmc.assignment.entity.SimpleSaleMessage;
-import com.jpmc.assignment.handler.SimpleSaleMessageHandler;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.math.BigDecimal;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-
-import static org.mockito.Mockito.*;
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.Sale;
+import com.jpmc.assignment.entity.SimpleSaleMessage;
 
 
 public class SimpleSaleMessageHandlerTest {
@@ -22,8 +23,7 @@ public class SimpleSaleMessageHandlerTest {
 
 
     @Test
-    public void handleMethodShouldBeAbleToHandleSimpleSaleMessage() {
-        setup();
+    public void shouldStoreSaleRecord() {
         Sale sale = new Sale("Apple", new BigDecimal(10));
         SimpleSaleMessage simpleSaleMessage = new SimpleSaleMessage(sale, 10);
         handler.handle(simpleSaleMessage);
@@ -32,26 +32,16 @@ public class SimpleSaleMessageHandlerTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void handleMethodShouldThrowIllegalArgumentExceptionIfMessageIsInvalid() {
-        setup();
+    public void shouldThrowIllegalArgumentExceptionWhenInvalidMessageIsGiven() {
         handler.handle(null);
     }
 
-
-    private void setup() {
+    @Before
+    public void setup() {
         doNothing().when(salesRepository).addSaleRecord(Matchers.any(Sale.class));
         handler = new SimpleSaleMessageHandler(salesRepository);
     }
 
-    private Collection<Sale> getSales(String product, int price, int count) {
-        Collection<Sale> sales = new ArrayList<Sale>();
-
-        for (int i = 0; i < count; i++) {
-            Sale sale = new Sale(product, new BigDecimal(price));
-            sales.add(sale);
-        }
-
-        return sales;
-    }
+   
 
 }

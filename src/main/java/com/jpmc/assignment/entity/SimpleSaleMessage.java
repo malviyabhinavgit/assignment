@@ -3,9 +3,9 @@ package com.jpmc.assignment.entity;
 
 public class SimpleSaleMessage extends IncomingSaleMessage {
 
-    private final Integer occurrence;
+    private final int occurrence;
 
-    public SimpleSaleMessage(Sale sale, Integer noOfOccurrence) {
+    public SimpleSaleMessage(Sale sale, int noOfOccurrence) {
         super(sale);
         this.occurrence = noOfOccurrence;
     }

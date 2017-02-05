@@ -1,11 +1,11 @@
 package com.jpmc.assignment.handler;
 
+import java.util.stream.IntStream;
+
 import com.jpmc.assignment.dao.SalesRepository;
 import com.jpmc.assignment.entity.IncomingSaleMessage;
 import com.jpmc.assignment.entity.Sale;
 import com.jpmc.assignment.entity.SimpleSaleMessage;
-
-import java.util.stream.IntStream;
 
 
 public class SimpleSaleMessageHandler implements MessageHandler {

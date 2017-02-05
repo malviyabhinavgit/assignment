@@ -1,14 +1,10 @@
 package com.jpmc.assignment.service;
 
 
-import com.jpmc.assignment.dao.SalesRepository;
-import com.jpmc.assignment.entity.Adjustment;
-import com.jpmc.assignment.entity.AdjustmentSaleMessage;
-import com.jpmc.assignment.entity.Sale;
-import com.jpmc.assignment.service.ReportGenerator;
-import com.jpmc.assignment.service.ReportWriter;
-
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -16,7 +12,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.Adjustment;
+import com.jpmc.assignment.entity.AdjustmentSaleMessage;
+import com.jpmc.assignment.entity.Sale;
 
 
 public class ReportGeneratorTest {
@@ -27,8 +28,8 @@ public class ReportGeneratorTest {
 
 
     @Test
-    public void testGenerateProductDetailsReport() {
-        setUpProcessedSales();
+    public void shouldGenerateProductDetailsReport() {
+        createSalesRepositoryExpectations();
         reportGenerator.generateProductDetailsReport();
         verify(salesRepository, times(1)).getAllSales();
         verify(reportWriter, times(1)).write("Product,Total Sales,TotalSaleAmount");
@@ -36,8 +37,8 @@ public class ReportGeneratorTest {
     }
 
     @Test
-    public void testGenerateAdjustmentReport() {
-        setUpAdjustmentSaleMessage();
+    public void shouldGenerateAdjustmentReport() {
+        createSalesRepositoryExpectationsForAdjustments();
         reportGenerator.generateAdjustmentReport();
         verify(salesRepository, times(1)).getAllProcessedAdjustmentSaleMessages();
         verify(reportWriter, times(1)).write("Product,Adjustment,Price");
@@ -45,7 +46,7 @@ public class ReportGeneratorTest {
     }
 
 
-    private void setUpProcessedSales() {
+    private void createSalesRepositoryExpectations() {
         Map<String, ConcurrentLinkedQueue<Sale>> processedSaleMap = getProcessedSaleMap();
         when(salesRepository.getAllSales()).thenReturn(processedSaleMap);
         reportGenerator = new ReportGenerator(salesRepository, reportWriter);
@@ -67,7 +68,7 @@ public class ReportGeneratorTest {
         return adjustmentSaleMap;
     }
 
-    private void setUpAdjustmentSaleMessage() {
+    private void createSalesRepositoryExpectationsForAdjustments() {
         Map<String, ConcurrentLinkedQueue<AdjustmentSaleMessage>> adjustmentSaleMap = getAdjustmentSaleMap();
         when(salesRepository.getAllProcessedAdjustmentSaleMessages()).thenReturn(adjustmentSaleMap);
         reportGenerator = new ReportGenerator(salesRepository, reportWriter);

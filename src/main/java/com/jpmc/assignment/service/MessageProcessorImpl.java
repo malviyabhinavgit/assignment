@@ -1,16 +1,16 @@
 package com.jpmc.assignment.service;
 
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.log4j.Logger;
+
 import com.jpmc.assignment.entity.IncomingSaleMessage;
 import com.jpmc.assignment.entity.MessageType;
 import com.jpmc.assignment.exception.MessageProcessorException;
 import com.jpmc.assignment.handler.MessageHandler;
-
-import org.apache.log4j.Logger;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MessageProcessorImpl implements MessageProcessor {

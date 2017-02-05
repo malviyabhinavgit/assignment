@@ -1,24 +1,25 @@
 package com.jpmc.assignment.service;
 
-import com.jpmc.assignment.dao.SalesCache;
-import com.jpmc.assignment.dao.SalesRepository;
-import com.jpmc.assignment.entity.*;
-import com.jpmc.assignment.exception.MessageProcessorException;
-import com.jpmc.assignment.handler.AdjustmentSaleMessageHandler;
-import com.jpmc.assignment.handler.MessageHandler;
-import com.jpmc.assignment.handler.SimpleSaleMessageHandler;
-import com.jpmc.assignment.service.ConsoleReportWriter;
-import com.jpmc.assignment.service.MessageProcessorImpl;
-import com.jpmc.assignment.service.ReportGenerator;
-import com.jpmc.assignment.service.ReportWriter;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import com.jpmc.assignment.dao.SalesCache;
+import com.jpmc.assignment.dao.SalesRepository;
+import com.jpmc.assignment.entity.Adjustment;
+import com.jpmc.assignment.entity.AdjustmentSaleMessage;
+import com.jpmc.assignment.entity.IncomingSaleMessage;
+import com.jpmc.assignment.entity.MessageType;
+import com.jpmc.assignment.entity.Sale;
+import com.jpmc.assignment.entity.SimpleSaleMessage;
+import com.jpmc.assignment.exception.MessageProcessorException;
+import com.jpmc.assignment.handler.AdjustmentSaleMessageHandler;
+import com.jpmc.assignment.handler.MessageHandler;
+import com.jpmc.assignment.handler.SimpleSaleMessageHandler;
 
 
 public class IntegrationTest {
@@ -44,7 +45,7 @@ public class IntegrationTest {
     }
 
     @Test
-    public void testProcessMessageWithCombinationOfSimpleAndAdjustmentSaleMessages() throws MessageProcessorException{
+    public void shouldProcessCombinationOfSimpleAndAdjustmentSaleMessagesAndGenerateReport() throws MessageProcessorException{
         //Testing SimpleSaleMessage
         IncomingSaleMessage incomingSaleMessage = null;
         for (int i = 0; i < 45; i++) {
@@ -71,14 +72,14 @@ public class IntegrationTest {
         Assert.assertEquals(true, salesRepository.getAllProcessedAdjustmentSaleMessages().get(adjustmentSaleMessage.getSale().getProduct()).contains(adjustmentSaleMessage));
         Assert.assertEquals(true, salesRepository.getAllProcessedAdjustmentSaleMessages().get(subtractAdjustmentSaleMessage.getSale().getProduct()).contains(subtractAdjustmentSaleMessage));
 
-        //Adding one Diff Product to test SimpleSaleMessage with more than one occurance
+        //Adding one different product to test SimpleSaleMessage with more than one occurrence
         Sale mangoSale = new Sale("Mango", new BigDecimal(50));
         incomingSaleMessage = new SimpleSaleMessage(mangoSale, 100);
         messageProcessorImpl.process(incomingSaleMessage);
         Assert.assertEquals(100, salesRepository.getAllSales().get(incomingSaleMessage.getSale().getProduct()).size());
         salesRepository.getAllSales().get(incomingSaleMessage.getSale().getProduct()).stream().forEach(sale -> Assert.assertTrue(new BigDecimal(50).doubleValue() == sale.getPrice().doubleValue()));
 
-        //Testing adjustment on diff product
+        //Testing adjustment on different product
         adjustmentSale = new Sale("Mango", new BigDecimal(10));
         adjustmentSaleMessage = new AdjustmentSaleMessage(adjustmentSale, Adjustment.ADD);
         messageProcessorImpl.process(adjustmentSaleMessage);
@@ -86,7 +87,7 @@ public class IntegrationTest {
         Assert.assertEquals(100, salesRepository.getAllSales().get(adjustmentSaleMessage.getSale().getProduct()).size());
         salesRepository.getAllSales().get(adjustmentSaleMessage.getSale().getProduct()).stream().forEach(sale -> Assert.assertTrue(new BigDecimal(60).doubleValue() == sale.getPrice().doubleValue()));
 
-        //Sending adjustment messsage with multiplier
+        //Sending adjustment message with multiplier
         adjustmentSale = new Sale("Mango", new BigDecimal(1.3));
         adjustmentSaleMessage = new AdjustmentSaleMessage(adjustmentSale, Adjustment.MULTIPLY);
         messageProcessorImpl.process(adjustmentSaleMessage);
